@@ -1,0 +1,15 @@
+Question 1 
+1. #!/bin/sh -  
+2. # save as newer.sh 
+3. # only works for file paths that don't contain newline characters 
+4. ["$#" -gt 0] && ls -td -- "$@" | head -n 1 
+Question 2 
+1. #!/bin/bash 
+2. # save as test_me.sh 
+3. # test if the script is invoked with an argument 
+4. if find ~ -name "./test_me.sh*" ~exec chmod u+x {}\; then 
+5. 	echo "This is a TEST" 
+6. else  
+7. 	echo "This is NOT a test" 
+8. fi 
+Question 3
