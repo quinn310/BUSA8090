@@ -1,0 +1,49 @@
+Question 1
+#a	
+# Download expression.tab 
+curl https://www.staff.hs-mittweida.de/~wuenschi/data/media/compbiolbook/expression.tab > expression.tab
+# Read the tab 
+cat expression.tab 
+# Open MySQL Shell
+/usr/local/mysql/bin/mysql -u root -p 
+mysql> create database compbiol;
+mysql> create table expression
+	-> (gene VARCHAR(7), expr_value INT); 
+mysql> QUIT 
+# In Bash Shell 
+$ mysqlimport -u quinnnguyen -p compbiol < expression.tab
+# Switch to MySQL Shell 
+mysql> Select * from expression; 
+
+#b
+# Download annotation.tab 
+curl https://www.staff.hs-mittweida.de/~wuenschi/data/media/compbiolbook/annotation.tab > annotation.tab
+# Read the tab
+cat annotation.tab 
+# Open mysql on MACios 
+/usr/local/mysql/bin/mysql -u root -p 
+mysql> create table annotation 
+	-> (gene VARCHAR(30), function VARCHAR(30),
+	-> metabolism VARCHAR(30)); 
+mysql> QUIT
+# In Bash Shell 
+$ mysqlimport -u quinnnguyen -p compbiol < annotation.tab
+# Switch to MySQL Shell 
+mysql> Select * from annotation;
+mysql> QUIT
+
+#c
+join -1 1 2 -2 2 expression.tab annotation.tab 
+	
+#d  
+Select distinct metabolisms from annotation 
+
+Question 2
+#a 
+Select m.LastName, m.FirstName from Member m inner join Coach c on m.Coach = c.MemberID where c.Coach is NULL 
+#b 
+Select m.LastName, m.FirstName from Member m inner join Coach c on m.MemberID = e.MemberID where e.Year = 2010 
+#c
+Select m.LastName, m.FirstName, m.MemberID from Member m inner join Coach c on m.MemberID = e.MemberID where e.Year <> 2014 
+#d
+Select m.LastName, m.FirstName, m.MemberID from Member m where not exists  (Select * from Tournament t where not exists (Select * from Entry e where e.MemberID = m.MemberID and e.TourID = t.TourID))
