@@ -1,0 +1,125 @@
+Question 1
+# Assume that expression and annotation tables have been created like previous
+# open the path of ‘mysql’ in local host
+export PATH=${PATH}:/usr/local/mysql/bin
+# open ‘Mysql’
+mysql -u quinnnguyen -p 
+a.	Print expressions values that are less than 1 000
+# select all available information in the ‘expression’ table about genes which have expression level under 1000
+mysql> select * from expression where expr_level < 1000;
++---------+------------+
+| gene    | expr_level |
++---------+------------+
+| alr4392 |        729 |
+| alr4851 |        633 |
++---------+------------+
+2 rows in set (0.01 sec)
+b.	Searches the ‘annotation’ table for instances of the string ‘ase’ in the ‘function’ field
+# select all available information in the ‘annotation’ table about genes which have function names containing the phrase ‘ase’ 
+mysql> select * from annotation where functionn like '%ase%';
++---------+--------------------------------+-------------------------------+
+| gene    | functionn                      | metabolism                    |
++---------+--------------------------------+-------------------------------+
+| alr2938 | iron superoxide dismutase      | Detoxification                |
+| alr4851 | preprotein translocase subunit | Protein and peptide secretion |
+| alr3395 | adenylosuccinate lyase         | Purine biosynthesis           |
+| alr1207 | uridylate kinase               | Pyrimidine biosynthesis       |
+| alr5000 | CTP synthetase                 | Pyrimidine biosynthesis       |
+| all3556 | succinate dehydrogenase        | TCA cycle                     |
++---------+--------------------------------+-------------------------------+
+6 rows in set (0.01 sec)
+c.	searches the ‘annotation’ table for instances of the string ‘Purine biosynthesis’ or ‘Pyramidine biosynthe- sis’ in the ‘function’ field
+# only show information about functions of genes which have metabolism values ‘Purine biosynthesis’ or ‘Pyrimidine biosynthesis’ 
+mysql> select functionn from annotation where metabolism
+    -> regexp '(Purine|Pyrimidine) biosynthesis';
++------------------------+
+| functionn              |
++------------------------+
+| adenylosuccinate lyase |
+| uridylate kinase       |
+| CTP synthetase         |
++------------------------+
+3 rows in set (0.03 sec)
+
+
+
+
+
+Question 2
+a.	Download the world x database
+# Download data from the link into the folder ‘ggplot2’ 
+# Change directory to ‘ggplot2’
+cd /Users/quinnnguyen/Desktop/BUSA8090/ggplot2/
+# list all in the current directory ‘ggplot2’
+ls -l
+-rw-r--r--@ 1 quinnnguyen  staff     563200 30 Apr 06:30 world_x-db.tar
+# unzip ‘.tar’ to get the folder ‘world_x-db’
+unzip 'world_x-db.tar'
+# open the path of ‘mysql’ in local host and get into ‘mysql’
+export PATH=${PATH}:/usr/local/mysql/bin
+mysql -u root -p
+# import the data into ‘mysql’, as a result, the database ‘world_x’ is installed 
+mysql> source /Users/quinnnguyen/Desktop/BUSA8090/ggplot2/world_x-db/world_x.sql
+mysql> use world_x
+# to see tables in this database
+mysql> show tables;
++-------------------+
+| Tables_in_world_x |
++-------------------+
+| city              |
+| country           |
+| countryinfo       |
+| countrylanguage   |
++-------------------+
+4 rows in set (0.01 sec)
+b.	Retrieve a table of the names of all English speaking countries in the world, together with the percentage of the population that speaks English, and the countries’ capitals. Here, we define an English speaking country as one with a percentage of English speakers above 50%  
+# use ‘describe’ to see variables in each table, so the two tables we need to get relevant information are ‘country’ and ‘countrylanguage’
+# join two tables with ‘Code’ from ‘country’ and ‘CountryCode’ from ‘countrylanguage’
+# set conditions based on the problem definition 
+# order countries with their levels of English speaking (from high to low) 
+mysql> select c.Name,c.Capital,l.Percentage                                         
+    -> from country as c, countrylanguage as l
+    -> where c.Code = l.CountryCode and l.Language = 'English' and l.Percentage > 50
+    -> order by l.Percentage DESC; 
++----------------------+---------+------------+
+| Name                 | Capital | Percentage |
++----------------------+---------+------------+
+| Bermuda              |     191 |      100.0 |
+| Ireland              |    1447 |       98.4 |
+| United Kingdom       |     456 |       97.3 |
+| Trinidad and Tobago  |    3336 |       93.5 |
+| Gibraltar            |     915 |       88.9 |
+| New Zealand          |    3499 |       87.0 |
+| United States        |    3813 |       86.2 |
+| Virgin Islands, U.S. |    4067 |       81.7 |
+| Australia            |     135 |       81.2 |
+| Canada               |    1822 |       60.4 |
+| Belize               |     185 |       50.8 |
++----------------------+---------+------------+
+11 rows in set (0.00 sec)
+
+
+
+
+Question 3
+# Download data from statista.com 
+# Import data into R 
+library(readr)
+covid <- read_excel("~/Downloads/incidence-of-coronavirus--covid-19--deaths-2020-by-country.xlsx", + sheet = "Data")
+# ggplot2 
+## aes: Aesthetic mappings describe how variables in the data are mapped to visual properties (aesthetics) of geoms
+## as.factor(Countries) is to factorize ‘Countries’
+## "reorder" treats its first argument as a categorical variable, and reorders its levels based on the values of a second variable, Deaths 
+ggplot(covid,aes(reorder(x=as.factor(Countries),Deaths),y=Deaths)) +
+## geom_bar() makes the height of the bar proportional to the number of cases in each group (or if the weight aesthetic is supplied, the sum of the weights)
+## stat = "identity": leaves the data as it is  
+## position = "dodge": Dodging preserves the vertical position of an geom while adjusting the horizontal position
+  geom_bar(width=0.7,stat="identity",position="dodge") +
+## y is continuous from 0 to 70, but showed 0,10,20,...,70 on the graph 
+  scale_y_continuous(breaks = seq(0,70, by = 10)) + 
+## set the title “ “ for the graph 
+  ggtitle("Incidence of coronavirus (COVID-19) deaths as of April 27, 2020, by country (per 100,000 population)") +
+## set the names for x and y axis
+  labs(y = "Covid-19 Deaths per 100,000 population", x = "Countries") + 
+## coord_flip() is to Flip cartesian coordinates so that horizontal becomes vertical, and vice versa  
+coord_flip()
