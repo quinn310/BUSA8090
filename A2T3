@@ -1,0 +1,26 @@
+# Question 2
+# a.	Create an attractive visualisation of the global distribution of CO2 per capita 
+library(readr)
+library(ggmap)
+Data <- read_csv("~/Downloads/co-emissions-per-capita.csv") %>% filter(Year==2017)
+is.na(Data) <- 0 
+world_map <- map_data("world")
+world_map <- merge(world_map,Data,by.x="region",by.y="Entity")
+ggplot(world_map,aes(y=lat,x=long,group=group)) + 
+  geom_polygon(aes(fill=CO2)) +
+  ggtitle("CO2 emissions percapita (tonnes per capita), 2017") + 
+  labs(x=NULL,y=NULL) + 
+  coord_quickmap()
+# b.	Plot a network diagram of the Bali terrorist network, with the terrorists as nodes 
+library(devtools)
+library(network)
+library(sna)
+library(UserNetR)
+data(Bali)
+ggnetplot(Bali) 
+# c.	Repeat the task immediately above, but this time with the role of the terrorist replacing his/her name 
+Balii <- ggnetwork(Bali) 
+ggplot(Balii, aes(x,y,xend=xend,yend=yend)) +
+  geom_edges(col=”tomato”, alpha=0.6) + 
+  geom_nodetext_repel(aes(label=role),size=3) + 
+  theme_blank()
